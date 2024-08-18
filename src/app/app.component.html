@@ -1,4 +1,7 @@
+<input type="text" [(ngModel)]="id">
 <input type="Button" value="Conectar" (click)="conectar()">
+
+<br>
 
 <div id="palavras">
     <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()">{{palavra.texto.toUpperCase()}}</div>

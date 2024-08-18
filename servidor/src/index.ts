@@ -24,9 +24,16 @@ route.get('/novo-jogo', (req: Request, res: Response) => {
 
   let jogo = new Jogo(1, palavras.sort(() => 0.5 - Math.random()), [], []);
 
+  JOGOS.push(jogo);
+
   console.log(jogo)
 
   res.json(jogo)
+})
+
+app.get('/jogo/:id', (req: Request, res: Response) => {
+  console.log(JOGOS, req.params)
+  res.json(JOGOS[parseInt(req.params.id)]);
 })
 
 app.use(route)

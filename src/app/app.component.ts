@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Palavra } from '../shared/models/Palavra';
 import { Jogo } from '../shared/models/jogo';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule,RouterOutlet],
+  imports: [CommonModule,FormsModule, RouterOutlet],
   providers: [
     PalavrasService
   ],
@@ -20,17 +21,25 @@ export class AppComponent implements OnInit {
   
 constructor(private palavras : PalavrasService, private http: HttpClient) {}
 
+  public id : string = "";
   public jogo ?: Jogo;
 
   ngOnInit(): void {
-    this.http.get<Jogo>("http://localhost:3000/novo-jogo").subscribe((r) => {
-      console.log(r)
-      this.jogo = r;
-    });
+    
   }
 
   conectar() : void {
-    this.palavras.geraPalavras()
+    if(this.id) {
+      this.http.get<Jogo>("http://localhost:3000/jogo/" + this.id).subscribe((r) => {
+        console.log(r)
+        this.jogo = r;
+      });
+    } else {
+      this.http.get<Jogo>("http://localhost:3000/novo-jogo").subscribe((r) => {
+        console.log(r)
+        this.jogo = r;
+      });
+    }
   }
   
 }
