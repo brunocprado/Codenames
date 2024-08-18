@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors';
 import { Router, Request, Response } from 'express';
+import { Server } from 'socket.io';
 
 import { PALAVRAS } from './PALAVRAS';
 import { Palavra, TipoPalavra } from '../../src/shared/models/palavra';
@@ -38,4 +39,12 @@ app.get('/jogo/:id', (req: Request, res: Response) => {
 
 app.use(route)
 
-app.listen(3000, () => 'server running on port 3333')
+const servidor = app.listen(3000, () => 'server running on port 3333')
+const io = new Server(servidor);
+
+io.on('connection', (socket) => {
+  console.log('user connected');
+  socket.on('disconnect', function () {
+    console.log('user disconnected');
+  });
+})
