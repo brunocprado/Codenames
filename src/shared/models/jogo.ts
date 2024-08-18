@@ -1,4 +1,4 @@
-import { Palavra } from "./Palavra";
+import { Palavra } from "./palavra";
 
 export class Jogo {
     id: number;

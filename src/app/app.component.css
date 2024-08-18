@@ -6,6 +6,7 @@
     width: 600px;
 }
 .palavra{
+    cursor:pointer;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,4 +17,17 @@
     height: 86px;
     background: #ddd;
     font-family: sans-serif;
+    transition: 1s;
+}
+.palavra.vermelha{
+    background: red;
+    color: white;
+}
+.palavra.azul{
+    background: blue;
+    color: white;
+}
+.palavra.preta{
+    background: black;
+    color: white;
 }

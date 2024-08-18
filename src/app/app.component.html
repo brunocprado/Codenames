@@ -4,5 +4,7 @@
 <br>
 
 <div id="palavras">
-    <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()">{{palavra.texto.toUpperCase()}}</div>
+    <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="(palavra.revelada) ? palavra.tipo.toString() : ''" (click)="selecionaPalavra(palavra)">
+        {{palavra.texto.toUpperCase()}}
+    </div>
 </div>
