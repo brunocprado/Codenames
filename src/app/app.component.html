@@ -1,11 +1,32 @@
-<input type="text" [(ngModel)]="id">
+<input type="text" [(ngModel)]="id" placeholder="idSessao">
+<select [(ngModel)]="tipoJogador">
+    <option>ESPIAO</option>
+    <option>OPERADOR</option>
+</select>
 <input type="Button" value="Conectar" (click)="conectar()">
-<input type="Button" value="teste" (click)="teste()">
+<input type="Button" value="Novo Jogo" (click)="novoJogo()">
 
 <br>
+
+<label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label>  
+<label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
 
 <div id="palavras">
     <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()" (click)="selecionaPalavra(palavra)">
         {{palavra.texto.toUpperCase()}}
     </div>
 </div>
+
+<div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == timeJogando">
+    <input id="entradaPalavra" type="text" [(ngModel)]="inputPalavra">
+    <select [(ngModel)]="numeroPalavras">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+    </select>
+    <input type="button" value="Enviar" (click)="enviaPalavra()">
+</div>
+
+<textarea id="historico" readonly [(ngModel)]="historico"></textarea>

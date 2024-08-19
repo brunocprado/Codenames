@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 @Injectable({providedIn: 'root'})
 export class JogoService {
 
-    private socket = io('http://localhost:3000');
+    private socket = io('http://brunoprado.ddns.net:3000');
 
     constructor(private http: HttpClient) {}
 

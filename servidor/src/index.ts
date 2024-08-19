@@ -15,8 +15,22 @@ app.use(express.json())
 
 const JOGOS : Jogo[] = [];
 
-route.get('/novo-jogo', (req: Request, res: Response) => {
-  const palavras_jogo = PALAVRAS.split('\n').sort(() => 0.5 - Math.random()).slice(0, 20);
+route.get('/novo-jogo/:teste', async (req: Request, res: Response) => {
+  let fdc = PALAVRAS.split('\n');
+  if(req.params.teste != ""){
+    const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini", 
+        messages: [{ 
+            role: "user", 
+            content: `Gere uma lista de 20 palavras únicas que sejam relacionadas com : '${req.params.teste}'. Envie somente uma lista somente com as palavras e sem números`
+        }],
+        stream: false
+    });
+    console.log(stream.choices[0].message.content)
+    fdc = stream.choices[0].message.content.replace(".", "").split('\n')
+  }
+
+  const palavras_jogo = fdc.sort(() => 0.5 - Math.random()).slice(0, 20);
 
   let palavras : Palavra[] = [];
   for(var i=0;i<5;i++) palavras.push(new Palavra(palavras_jogo[i], TipoPalavra.AZUL));
@@ -24,7 +38,7 @@ route.get('/novo-jogo', (req: Request, res: Response) => {
   for(var i=10;i<19;i++) palavras.push(new Palavra(palavras_jogo[i], TipoPalavra.BRANCA));
   palavras.push(new Palavra(palavras_jogo[19], TipoPalavra.PRETA));
 
-  let jogo = new Jogo(1, palavras.sort(() => 0.5 - Math.random()), [], []);
+  let jogo = new Jogo(JOGOS.length, palavras.sort(() => 0.5 - Math.random()));
 
   JOGOS.push(jogo);
 
@@ -36,18 +50,21 @@ route.get('/novo-jogo', (req: Request, res: Response) => {
   res.json(tmp)
 })
 
-app.get('/jogo/:id', (req: Request, res: Response) => {
-  let tmp = structuredClone(JOGOS[parseInt(req.params.id)]) //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
-  for(var p of tmp.palavras){
-    p.tipo = TipoPalavra.NAO_REVELADA;
+app.get('/jogo/:id/:tipoJogador', (req: Request, res: Response) => {
+  if(req.params.tipoJogador == 'ESPIAO'){
+    res.json(JOGOS[parseInt(req.params.id)]);
+  } else {
+    let tmp = structuredClone(JOGOS[parseInt(req.params.id)]) //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
+    for(var p of tmp.palavras){
+      p.tipo = TipoPalavra.NAO_REVELADA;
+    }
+    res.json(tmp);
   }
-
-  res.json(tmp);
 })
 
 app.use(route)
 
-const servidor = app.listen(3000, () => 'server running on port 3333')
+const servidor = app.listen(3000, '0.0.0.0', () => 'server running on port 3333')
 const socket = new io.Server(servidor, {
   cors: {
     origin: "*",
@@ -58,17 +75,31 @@ const socket = new io.Server(servidor, {
 
 socket.on('connection', (socket) => {
   console.log('user connected');
+  
+  socket.onAny((tipo, dados) => {
+    console.log(tipo,dados);
+    // socket.broadcast.emit(r,t)
+
+    if(tipo == 'escolha'){
+      for(var p of JOGOS[0].palavras){
+        if(p.texto == dados.texto) { 
+          let acertou = (dados.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (dados.time == 1 && p.tipo == TipoPalavra.AZUL)
+          socket.broadcast.emit('selecionou', p, acertou);
+          socket.emit('selecionou', p, acertou);
+        }
+      }
+    }
+
+    if(tipo=='dica'){
+      socket.broadcast.emit('dica', dados)
+    }
+  })
 
   socket.on('escolha', (palavra: any) => {
     for(var p of JOGOS[0].palavras){
       if(p.texto == palavra.texto) { 
         let acertou = (palavra.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (palavra.time == 1 && p.tipo == TipoPalavra.AZUL)
-        socket.emit('selecionou', p, acertou); 
-        // if((palavra.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (palavra.time == 1 && p.tipo == TipoPalavra.AZUL)){
-
-        // } else {
-        //   // socket.emit('errou')
-        // }
+        socket.broadcast.emit('selecionou', p, acertou);
       }
     }
   });
