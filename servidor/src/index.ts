@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors';
 import { Router, Request, Response } from 'express';
-import { Server } from 'socket.io';
+import * as io from 'socket.io';
 
 import { PALAVRAS } from './PALAVRAS';
 import { Palavra, TipoPalavra } from '../../src/shared/models/palavra';
@@ -28,22 +28,51 @@ route.get('/novo-jogo', (req: Request, res: Response) => {
 
   JOGOS.push(jogo);
 
-  console.log(jogo)
+  let tmp = structuredClone(jogo) //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
+  for(var p of tmp.palavras){
+    p.tipo = TipoPalavra.NAO_REVELADA;
+  }
 
-  res.json(jogo)
+  res.json(tmp)
 })
 
 app.get('/jogo/:id', (req: Request, res: Response) => {
-  res.json(JOGOS[parseInt(req.params.id)]);
+  let tmp = structuredClone(JOGOS[parseInt(req.params.id)]) //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
+  for(var p of tmp.palavras){
+    p.tipo = TipoPalavra.NAO_REVELADA;
+  }
+
+  res.json(tmp);
 })
 
 app.use(route)
 
 const servidor = app.listen(3000, () => 'server running on port 3333')
-const io = new Server(servidor);
+const socket = new io.Server(servidor, {
+  cors: {
+    origin: "*",
+    methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
+    credentials: false
+  }
+});
 
-io.on('connection', (socket) => {
+socket.on('connection', (socket) => {
   console.log('user connected');
+
+  socket.on('escolha', (palavra: any) => {
+    for(var p of JOGOS[0].palavras){
+      if(p.texto == palavra.texto) { 
+        let acertou = (palavra.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (palavra.time == 1 && p.tipo == TipoPalavra.AZUL)
+        socket.emit('selecionou', p, acertou); 
+        // if((palavra.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (palavra.time == 1 && p.tipo == TipoPalavra.AZUL)){
+
+        // } else {
+        //   // socket.emit('errou')
+        // }
+      }
+    }
+  });
+
   socket.on('disconnect', function () {
     console.log('user disconnected');
   });

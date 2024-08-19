@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PalavrasService } from '../shared/services/palavras.service';
+import { JogoService } from '../shared/services/jogo.service';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Palavra } from '../shared/models/palavra';
+import { Palavra, TipoPalavra } from '../shared/models/palavra';
 import { Jogo } from '../shared/models/jogo';
 import { FormsModule } from '@angular/forms';
 
@@ -12,22 +12,36 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule,FormsModule, RouterOutlet],
   providers: [
-    PalavrasService
+    JogoService
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   
-  constructor(private palavras : PalavrasService, private http: HttpClient) {}
+  constructor(private jogoService : JogoService, private http: HttpClient) {}
 
   public id : string = "";
-  public jogo ?: Jogo;
+  public jogo : Jogo = new Jogo(0,[],[],[]);
+  public time : number = 0;
 
   ngOnInit(): void {
     this.http.get<Jogo>("http://localhost:3000/jogo/0").subscribe((r) => {
       console.log(r)
       this.jogo = r;
+    });
+    this.jogoService.getMensagens().subscribe({
+      next: (r : any) => {
+          console.log(r)
+          if(r.evento == 'selecionou'){
+            for(var p in this.jogo.palavras){
+                if(this.jogo.palavras[p].texto == r.data[0].texto) this.jogo.palavras[p] = r.data[0];
+            }
+            if(!r.data[1]) console.log("TODO:MUDAR O TIME")
+          }
+      },
+      error: (err) => console.error('Erro no Observable:', err),
+      complete: () => console.log('Observable completo'),
     });
   }
 
@@ -45,8 +59,13 @@ export class AppComponent implements OnInit {
     }
   }
 
+  teste() : void {
+    //this.jogoService.enviaMsg("isso é um teste")
+  }
+
   selecionaPalavra(palavra: Palavra) {
-    palavra.revelada = true;
+    if(palavra.tipo != TipoPalavra.NAO_REVELADA) return;
+    this.jogoService.enviaMensagem('escolha', {texto: palavra.texto, time: this.time })
   }
   
 }

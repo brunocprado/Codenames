@@ -1,10 +1,11 @@
 <input type="text" [(ngModel)]="id">
 <input type="Button" value="Conectar" (click)="conectar()">
+<input type="Button" value="teste" (click)="teste()">
 
 <br>
 
 <div id="palavras">
-    <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="(palavra.revelada) ? palavra.tipo.toString() : ''" (click)="selecionaPalavra(palavra)">
+    <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()" (click)="selecionaPalavra(palavra)">
         {{palavra.texto.toUpperCase()}}
     </div>
 </div>
