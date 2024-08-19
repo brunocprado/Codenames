@@ -11,15 +11,17 @@
 <label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label>  
 <label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
 
-<div id="palavras">
-    <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()" (click)="selecionaPalavra(palavra)">
-        {{palavra.texto.toUpperCase()}}
+<div id="containerPalavras">
+    <div id="palavras">
+        <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()" (click)="selecionaPalavra(palavra)">
+            {{palavra.texto.toUpperCase()}}
+        </div>
     </div>
 </div>
 
 <div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == timeJogando">
     <input id="entradaPalavra" type="text" [(ngModel)]="inputPalavra">
-    <select [(ngModel)]="numeroPalavras">
+    <select [(ngModel)]="numeroPalavras" id="numeroPalavras">
         <option>1</option>
         <option>2</option>
         <option>3</option>

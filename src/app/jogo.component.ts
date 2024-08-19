@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { JogoService } from '../shared/services/jogo.service';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -9,23 +9,24 @@ import { FormsModule } from '@angular/forms';
 import { TipoJogador } from '../shared/models/tipo-jogador';
 
 @Component({
-  selector: 'app-root',
+  selector: 'jogo',
   standalone: true,
   imports: [CommonModule,FormsModule, RouterOutlet],
   providers: [
     JogoService
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: './jogo.component.html',
+  styleUrl: './jogo.component.css'
 })
 export class AppComponent implements OnInit {
   
-  constructor(private jogoService : JogoService, private http: HttpClient) {}
+  constructor(private jogoService : JogoService, private http: HttpClient, private rota:ActivatedRoute) {}
 
   public id : string = "0";
   public jogo : Jogo = new Jogo(0,[]);
   public time : number = 0;
   public timeJogando : number = 0;
+  @Input() idJogo!: string;
   
   public tipoJogador : TipoJogador = TipoJogador.ESPIAO;
   
@@ -36,7 +37,11 @@ export class AppComponent implements OnInit {
 
   public historico : string = '';
 
+  private route = inject(ActivatedRoute);
+
   ngOnInit(): void {
+    
+    console.log(this.idJogo, this.route.snapshot.paramMap.get('id'))
     this.jogoService.getMensagens().subscribe({
       next: (r : any) => {
           console.log(r)
