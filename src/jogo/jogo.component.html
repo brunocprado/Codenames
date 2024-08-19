@@ -1,13 +1,3 @@
-<input type="text" [(ngModel)]="id" placeholder="idSessao">
-<select [(ngModel)]="tipoJogador">
-    <option>ESPIAO</option>
-    <option>OPERADOR</option>
-</select>
-<input type="Button" value="Conectar" (click)="conectar()">
-<input type="Button" value="Novo Jogo" (click)="novoJogo()">
-
-<br>
-
 <label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label>  
 <label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
 

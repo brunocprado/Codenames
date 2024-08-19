@@ -6,18 +6,18 @@ import io from 'socket.io-client';
 @Injectable({providedIn: 'root'})
 export class JogoService {
 
-    private socket = io('http://brunoprado.ddns.net:3000');
+    private IP : string = "brunoprado.ddns.net"
+    
+    private socket = io(`http://${this.IP}:3000`);
 
     constructor(private http: HttpClient) {}
 
     getMensagens() {
         return new Observable((subscriber) => {
-            // Escuta qualquer evento recebido
             this.socket.onAny((evento, ...args) => {
                 subscriber.next({ evento, data: args });
             });
         
-            // Limpeza ao se desinscrever
             return () => {
                 this.socket.offAny();
                 console.log("Observable desconectado");
@@ -28,5 +28,6 @@ export class JogoService {
     enviaMensagem(tipo: string, msg: any){
         this.socket.emit(tipo, msg);
     }
+    
 
 }

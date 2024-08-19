@@ -58,9 +58,9 @@ route.get('/novo-jogo/:teste', async (req: Request, res: Response) => {
 app.get('/jogo/:id/:tipoJogador', (req: Request, res: Response) => {
   if(!req.params.id) res.json({})
   if(req.params.tipoJogador == 'ESPIAO'){
-    res.json(JOGOS[parseInt(req.params.id)]);
+    res.json(JOGOS.get(req.params.id));
   } else {
-    let tmp : Jogo = structuredClone(JOGOS.get(req.params.id)) //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
+    let tmp : Jogo = structuredClone(JOGOS.get(req.params.id))! //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
     for(var p of tmp.palavras){
       p.tipo = TipoPalavra.NAO_REVELADA;
     }

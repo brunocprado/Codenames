@@ -18,15 +18,14 @@ import { TipoJogador } from '../shared/models/tipo-jogador';
   templateUrl: './jogo.component.html',
   styleUrl: './jogo.component.css'
 })
-export class AppComponent implements OnInit {
+export class JogoComponent implements OnInit {
   
   constructor(private jogoService : JogoService, private http: HttpClient, private rota:ActivatedRoute) {}
 
-  public id : string = "0";
+  public id ?: string = "";
   public jogo : Jogo = new Jogo(0,[]);
   public time : number = 0;
   public timeJogando : number = 0;
-  @Input() idJogo!: string;
   
   public tipoJogador : TipoJogador = TipoJogador.ESPIAO;
   
@@ -37,11 +36,16 @@ export class AppComponent implements OnInit {
 
   public historico : string = '';
 
-  private route = inject(ActivatedRoute);
-
   ngOnInit(): void {
+    this.id = this.rota.snapshot.paramMap.get('id')!;
     
-    console.log(this.idJogo, this.route.snapshot.paramMap.get('id'))
+
+    this.http.get<Jogo>(`http://brunoprado.ddns.net:3000/jogo/${this.id}/${this.tipoJogador}`).subscribe((r) => {
+      console.log("conectado no jogo", this.id)
+      console.log(r)
+      this.jogo = r;
+    });
+
     this.jogoService.getMensagens().subscribe({
       next: (r : any) => {
           console.log(r)
@@ -72,20 +76,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  novoJogo() : void {
-    this.http.get<Jogo>("http://brunoprado.ddns.net:3000/novo-jogo/" + this.id).subscribe((r) => {
-      console.log(r)
-      this.jogo = r;
-    });
-    
-  }
-
-  conectar() : void {
-    this.http.get<Jogo>("http://brunoprado.ddns.net:3000/jogo/0/" + this.tipoJogador).subscribe((r) => {
-      console.log(r)
-      this.jogo = r;
-    });
-  }
+  
 
   selecionaPalavra(palavra: Palavra) {
     if(palavra.tipo != TipoPalavra.NAO_REVELADA || this.tipoJogador == TipoJogador.ESPIAO) return;
