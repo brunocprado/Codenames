@@ -1,3 +1,6 @@
+#pagina{
+    height: 100vh;
+}
 #containerPalavras{
     width: 80%;    
     display: flex;
@@ -29,6 +32,11 @@
     transition: 1s;
     box-sizing: border-box;
     border-radius: 10px;
+    box-shadow: 0 0 4px #333;
+}
+.palavra.revelada{
+    text-decoration: line-through;
+    opacity: .5s;
 }
 .palavra.vermelha{
     background: #ff6e00;

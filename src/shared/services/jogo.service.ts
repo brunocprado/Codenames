@@ -12,6 +12,7 @@ export class JogoService {
 
     public idJogo ?: string;
     public tipoJogador : TipoJogador = TipoJogador.OPERADOR;
+    public time : number = 0
 
     constructor(private http: HttpClient) {}
 

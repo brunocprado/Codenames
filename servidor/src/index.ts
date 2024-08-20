@@ -9,7 +9,7 @@ import { Jogo } from '../../src/shared/models/jogo';
 
 const { OpenAI } = require('openai');
 
-const openai = new OpenAI({apiKey: 'sk-proj-UhnDVs9friKQBKvyi6gJT3BlbkFJ02U7RyNHsCx6PL4nPWxo'});
+const openai = new OpenAI({apiKey: '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'});
 
 const app = express();
 const route = Router()
@@ -26,7 +26,7 @@ route.post('/novo-jogo', async (req: Request, res: Response) => {
         model: "gpt-4o-mini", 
         messages: [{ 
             role: "user", 
-            content: `Gere uma lista de 26 palavras únicas que sejam relacionadas com : '${req.body.prompt}'. Envie somente uma lista somente com as palavras e sem números`
+            content: `Gere uma lista de 26 palavras/nomes únicas que sejam relacionadas com : '${req.body.prompt}'. Envie somente uma lista somente com as palavras e sem números`
         }],
         stream: false
     });
@@ -98,12 +98,16 @@ socketio.on('connection', (socket) => {
     for(var p of JOGOS.get(dados.idJogo)!.palavras){
       if(p.texto == dados.texto) { 
         let acertou = (dados.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (dados.time == 1 && p.tipo == TipoPalavra.AZUL)
-        // socket.broadcast.emit('selecionou', p, acertou);
-        // socket.emit('selecionou', p, acertou);
-        // socket.broadcast.to(dados.idJogo).emit('selecionou', p, acertou);
-        socketio.sockets.in(dados.idJogo).emit('selecionou', p, acertou);
+        socketio.sockets.in(dados.idJogo).emit('selecionou', {palavra: p, acertou: acertou, time: dados.time});
+        if(p.tipo == TipoPalavra.PRETA) {
+          socketio.sockets.in(dados.idJogo).emit('acabou', {time: dados.time});
+        }
       }
     }
+  });
+
+  socket.on('encerra-turno', (dados: any) => {
+    socketio.sockets.in(dados.idJogo).emit('encerra-turno', {time: dados.time});
   });
 
   // socket.on('disconnect', function () {

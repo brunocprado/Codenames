@@ -1,24 +1,29 @@
-<label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label> <br>
-<label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
-
-<div id="containerPalavras">
-    <div id="palavras">
-        <div class="palavra" *ngFor="let palavra of jogo?.palavras" [ngClass]="palavra.tipo.toString()" (click)="selecionaPalavra(palavra)">
-            {{palavra.texto.toUpperCase()}}
+<div id="pagina" [style.background]="(timeJogando == 0) ? 'rgb(144 111 111)' : '#7077a5'">
+    <label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label> <br>
+    <label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
+    
+    <div id="containerPalavras">
+        <div id="palavras">
+            <div *ngFor="let palavra of jogo?.palavras" [ngClass]="['palavra', palavra.tipo.toString(),(tipoJogador == 'ESPIAO' && listaPalavrasSelecionadas.includes(palavra.texto)) ? 'revelada' : '']" (click)="selecionaPalavra(palavra)">
+                {{palavra.texto.toUpperCase()}}
+            </div>
         </div>
     </div>
+    
+    <div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == timeJogando">
+        <p align="center">
+            <input id="entradaPalavra" type="text" [(ngModel)]="inputPalavra">
+            <select [(ngModel)]="numeroPalavras" id="numeroPalavras">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+            <input type="button" value="Enviar" (click)="enviaPalavra()">
+        </p>
+    </div>
+    <p align="center"><input *ngIf="tipoJogador == 'OPERADOR' && timeJogando == time && jaEnviou" type="button" value="Encerrar Turno" (click)="encerraTurno()"></p>
+    
+    <textarea id="historico" readonly [(ngModel)]="historico"></textarea>
 </div>
-
-<div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == timeJogando">
-    <input id="entradaPalavra" type="text" [(ngModel)]="inputPalavra">
-    <select [(ngModel)]="numeroPalavras" id="numeroPalavras">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-    </select>
-    <input type="button" value="Enviar" (click)="enviaPalavra()">
-</div>
-
-<textarea id="historico" readonly [(ngModel)]="historico"></textarea>

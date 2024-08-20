@@ -1,9 +1,15 @@
-<div id="container">
-  <input type="text" [(ngModel)]="id" placeholder="idSessao">
-  <select [(ngModel)]="tipoJogador">
-      <option>ESPIAO</option>
-      <option>OPERADOR</option>
-  </select>
-  <input type="Button" value="Conectar" (click)="conectar()">
-  <input type="Button" value="Novo Jogo" (click)="novoJogo()">
+<div id="pagina">
+  <div id="container">
+    <input id="idSessao" type="text" [(ngModel)]="id" placeholder="Id da sessão ou seed de geração">
+    <select [(ngModel)]="time">
+      <option value="0">VERMELHO</option>
+      <option value="1">AZUL</option>
+    </select>
+    <select [(ngModel)]="tipoJogador">
+        <option>ESPIAO</option>
+        <option>OPERADOR</option>
+    </select>
+    <input type="Button" value="Conectar" (click)="conectar()">
+    <input type="Button" value="Novo Jogo" (click)="novoJogo()">
+  </div>
 </div>

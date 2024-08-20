@@ -34,11 +34,14 @@ export class JogoComponent implements OnInit {
 
   public historico : string = '';
 
+  public listaPalavrasSelecionadas : string[] = [];
+
   ngOnInit(): void {    
     this.jogoService.idJogo = this.rota.snapshot.paramMap.get('idJogo')!;
     this.tipoJogador = this.jogoService.tipoJogador;
+    this.time = this.jogoService.time;
     // this.tipoJogador = this.rota.snapshot.paramMap.get('tipoJogador')! as TipoJogador;
-    console.log({id: this.jogoService.idJogo, tipoJogador: this.tipoJogador})
+    console.log({id: this.jogoService.idJogo, tipoJogador: this.tipoJogador, time: this.time})
 
     this.http.post<Jogo>('http://brunoprado.ddns.net:3000/jogo', {id: this.jogoService.idJogo, tipoJogador: this.tipoJogador}).subscribe((r) => {
       console.log("conectado no jogo", r)
@@ -50,25 +53,35 @@ export class JogoComponent implements OnInit {
       next: (r : any) => {
           console.log(r)
           if(r.evento == 'selecionou'){
-            this.historico += `Time: ${this.getTime(this.time)} selecionou a palavra ${r.data[0].texto} \n`
+            this.listaPalavrasSelecionadas.push(r.data[0].palavra.texto)
+            this.historico += `Time: ${this.getTime(r.data[0].time)} selecionou a palavra ${r.data[0].palavra.texto} \n`
             for(var p in this.jogo.palavras){
-                if(this.jogo.palavras[p].texto == r.data[0].texto) this.jogo.palavras[p] = r.data[0];
+                if(this.jogo.palavras[p].texto == r.data[0].palavra.texto) this.jogo.palavras[p] = r.data[0].palavra;
             }
-            if(!r.data[1]) { 
+            if(!r.data[0].acertou) { 
+              this.historico += `Time: ${this.getTime(this.timeJogando)} errou \n`;
               (this.timeJogando == 0) ? this.timeJogando = 1 : this.timeJogando = 0;
               if(this.time == this.timeJogando){ //&& this.tipoJogador == TipoJogador.ESPIAO
                 this.jaEnviou = false;                
               }
               console.log("MUDOU O TIME", this.time);
-            }
-            if(r.data[0].tipo == TipoPalavra.PRETA) {
-              //ACABOU O JOGO
-              this.timeJogando = 2;
+              
             }
           }
 
           if (r.evento == 'dica'){
-            this.historico += `Time: ${this.getTime(r.data)} deu a dica ${r.data[0].texto} - ${r.data[0].n} \n`
+            this.historico += `Time: ${this.getTime(r.data[0].time)} deu a dica ${r.data[0].texto} - ${r.data[0].n} \n`
+            this.jaEnviou = true;
+          }
+
+          if (r.evento =='encerra-turno'){
+            this.historico += `O Time: ${this.getTime(r.data[0].time)} encerrou o turno \n`
+            this.timeJogando = (r.data[0].time == 0) ? 1 : 0;
+          }
+
+          if (r.evento =='acabou'){
+            this.historico += `O Time: ${this.getTime(r.data[0].time)} perdeu \n`
+            this.timeJogando = 2;
           }
       },
       error: (e) => console.error('erro:', e),
@@ -77,17 +90,21 @@ export class JogoComponent implements OnInit {
   }
 
   selecionaPalavra(palavra: Palavra) {
+    if(this.time != this.timeJogando) return;
     if(palavra.tipo != TipoPalavra.NAO_REVELADA || this.tipoJogador == TipoJogador.ESPIAO || !this.jaEnviou) return;
     this.jogoService.enviaMensagem('escolha', {texto: palavra.texto, time: this.time, idJogo: this.jogoService.idJogo })
   }
 
   enviaPalavra() : void {
     this.jogoService.enviaMensagem('dica', {texto: this.inputPalavra, n: this.numeroPalavras, time: this.time, idJogo: this.jogoService.idJogo })
-    this.jaEnviou = true;
   }
 
   getTime(id : number) : string {
     return ['VERMELHO', 'AZUL'][id];
+  }
+
+  encerraTurno() : void {
+    this.jogoService.enviaMensagem('encerra-turno', { time: this.time, idJogo: this.jogoService.idJogo  })
   }
   
 }

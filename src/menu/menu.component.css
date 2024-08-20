@@ -1,0 +1,22 @@
+#pagina {
+    height: 100vh;
+    background: #517fa7;
+}
+#container{
+    position: absolute;
+    top: calc(50% - 30px);
+    left: calc(50% - 360px);
+}
+#container #idSessao{
+    padding: 20px;
+    font-size: 16px;
+    width: 240px;
+}
+#container select{
+    padding: 20px;
+    font-size: 16px;
+    margin-left: 10px;
+}
+#container button {
+    margin: 0 10px;
+}

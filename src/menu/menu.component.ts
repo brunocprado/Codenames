@@ -19,6 +19,7 @@ export class MenuComponent{
 
   public tipoJogador : TipoJogador = TipoJogador.ESPIAO;
   public id ?: string = "";
+  public time : number = 0
 
   constructor(private http: HttpClient, private rota: Router) { }
 
@@ -27,6 +28,7 @@ export class MenuComponent{
       console.log("Jogo criado", r)
       this.jogoService.idJogo = r.toString();
       this.jogoService.tipoJogador = this.tipoJogador;
+      this.jogoService.time = this.time;
       this.rota.navigate([r, { }]);
     });
     
@@ -34,6 +36,7 @@ export class MenuComponent{
 
   conectar() : void {
     this.jogoService.tipoJogador = this.tipoJogador;
+    this.jogoService.time = this.time;
     this.rota.navigate([this.id, {  }]);
   }
 
