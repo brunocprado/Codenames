@@ -4,6 +4,7 @@ export enum TipoPalavra {
 export class Palavra {
   texto: string;
   tipo: TipoPalavra;
+  revelada : boolean = false;
 
   constructor(texto: string, tipo: TipoPalavra) {
     this.texto = texto;

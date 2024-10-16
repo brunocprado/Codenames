@@ -23,7 +23,6 @@ export class JogoComponent implements OnInit {
 
   public jogo : Jogo = new Jogo(0,[]);
   public time : number = 0;
-  public timeJogando : number = 0;
   
   public tipoJogador : TipoJogador = TipoJogador.OPERADOR;
   
@@ -31,6 +30,8 @@ export class JogoComponent implements OnInit {
   public inputPalavra : string = "";
   public numeroPalavras : number = 1;
   public jaEnviou : boolean = false;
+
+  public nPalavrasDica : number = 0;
 
   public historico : string = '';
 
@@ -59,11 +60,12 @@ export class JogoComponent implements OnInit {
                 if(this.jogo.palavras[p].texto == r.data[0].palavra.texto) this.jogo.palavras[p] = r.data[0].palavra;
             }
             if(!r.data[0].acertou) { 
-              this.historico += `Time: ${this.getTime(this.timeJogando)} errou \n`;
-              (this.timeJogando == 0) ? this.timeJogando = 1 : this.timeJogando = 0;
-              if(this.time == this.timeJogando){ //&& this.tipoJogador == TipoJogador.ESPIAO
-                this.jaEnviou = false;                
-              }
+              this.historico += `Time: ${this.getTime(this.jogo.timeJogando)} errou \n`;
+              (this.jogo.timeJogando == 0) ? this.jogo.timeJogando = 1 : this.jogo.timeJogando = 0;
+              // if(this.time == this.timeJogando){ //&& this.tipoJogador == TipoJogador.ESPIAO
+              //   this.jaEnviou = false;                
+              // }
+              this.jaEnviou = false;  
               console.log("MUDOU O TIME", this.time);
               
             }
@@ -72,16 +74,17 @@ export class JogoComponent implements OnInit {
           if (r.evento == 'dica'){
             this.historico += `Time: ${this.getTime(r.data[0].time)} deu a dica ${r.data[0].texto} - ${r.data[0].n} \n`
             this.jaEnviou = true;
+            this.nPalavrasDica = r.data[0].n + 1;
           }
 
           if (r.evento =='encerra-turno'){
             this.historico += `O Time: ${this.getTime(r.data[0].time)} encerrou o turno \n`
-            this.timeJogando = (r.data[0].time == 0) ? 1 : 0;
+            this.jogo.timeJogando = (r.data[0].time == 0) ? 1 : 0;
           }
 
           if (r.evento =='acabou'){
             this.historico += `O Time: ${this.getTime(r.data[0].time)} perdeu \n`
-            this.timeJogando = 2;
+            this.jogo.timeJogando = -1;
           }
       },
       error: (e) => console.error('erro:', e),
@@ -90,9 +93,12 @@ export class JogoComponent implements OnInit {
   }
 
   selecionaPalavra(palavra: Palavra) {
-    if(this.time != this.timeJogando) return;
+    if(this.time != this.jogo.timeJogando || this.nPalavrasDica <= 0) return;
     if(palavra.tipo != TipoPalavra.NAO_REVELADA || this.tipoJogador == TipoJogador.ESPIAO || !this.jaEnviou) return;
     this.jogoService.enviaMensagem('escolha', {texto: palavra.texto, time: this.time, idJogo: this.jogoService.idJogo })
+    this.nPalavrasDica -= 1;
+    if(this.nPalavrasDica <= 0) this.encerraTurno();
+    console.log(this.nPalavrasDica)
   }
 
   enviaPalavra() : void {
@@ -105,6 +111,10 @@ export class JogoComponent implements OnInit {
 
   encerraTurno() : void {
     this.jogoService.enviaMensagem('encerra-turno', { time: this.time, idJogo: this.jogoService.idJogo  })
+  }
+
+  contaPalavras(time : number) : number {
+    return (time == 0) ? this.jogo.palavras.filter(i => i.revelada && i.tipo == TipoPalavra.VERMELHA).length : this.jogo.palavras.filter(i => i.revelada && i.tipo == TipoPalavra.AZUL).length
   }
   
 }

@@ -16,6 +16,7 @@
     height: 600px;
     width: 860px;
     margin: 20px 0;
+    padding-top: 50px;
 }
 .palavra{
     cursor:pointer;
@@ -33,10 +34,8 @@
     box-sizing: border-box;
     border-radius: 10px;
     box-shadow: 0 0 4px #333;
-}
-.palavra.revelada{
-    text-decoration: line-through;
-    opacity: .5s;
+    padding-right: 6px;
+    
 }
 .palavra.vermelha{
     background: #ff6e00;
@@ -55,15 +54,26 @@
     background: #fff;
     color: black;
 }
+.palavra.revelada{
+    /* text-decoration: line-through; */
 
+    opacity: .8;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: 10px;
+    justify-content: end;
+    text-shadow: 0 0 4px #444;
+}
 #historico {
     position: absolute;
     right: 10px;
-    top: 65px;
-    height: 600px;
+    top: 80px;
+    height: 560px;
     width: 18%;
     border-radius: 10px;
-
+    min-width: 320px;
+    max-width: 320px;
+    background-color: #ffffffa1;
 }
 
 #entradaPalavra {
@@ -77,4 +87,12 @@
     padding: 12px;
     font-size: 18px;
     margin: 0 10px;
+}
+
+.indicadorTime {
+    position: absolute;
+    font-size: 32px;
+    top: 20px;
+    font-weight: bold;
+    font-family: monospace;
 }

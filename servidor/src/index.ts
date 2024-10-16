@@ -57,7 +57,7 @@ app.post('/jogo', (req: Request, res: Response) => { //:id/:tipoJogador
   } else {
     let tmp : Jogo = structuredClone(JOGOS.get(req.body.id))! //JOGO SÓ QUE SEM AS PALAVRAS REVELADAS
     for(var p of tmp.palavras){
-      p.tipo = TipoPalavra.NAO_REVELADA;
+      p.tipo = (p.revelada) ? p.tipo : TipoPalavra.NAO_REVELADA;
     }
     res.json(tmp);
   }
@@ -98,7 +98,9 @@ socketio.on('connection', (socket) => {
     for(var p of JOGOS.get(dados.idJogo)!.palavras){
       if(p.texto == dados.texto) { 
         let acertou = (dados.time == 0 && p.tipo == TipoPalavra.VERMELHA) || (dados.time == 1 && p.tipo == TipoPalavra.AZUL)
+        p.revelada = true;
         socketio.sockets.in(dados.idJogo).emit('selecionou', {palavra: p, acertou: acertou, time: dados.time});
+        if(!acertou) JOGOS.get(dados.idJogo)!.timeJogando = (JOGOS.get(dados.idJogo)!.timeJogando == 0) ? 1 : 0;
         if(p.tipo == TipoPalavra.PRETA) {
           socketio.sockets.in(dados.idJogo).emit('acabou', {time: dados.time});
         }
@@ -109,8 +111,4 @@ socketio.on('connection', (socket) => {
   socket.on('encerra-turno', (dados: any) => {
     socketio.sockets.in(dados.idJogo).emit('encerra-turno', {time: dados.time});
   });
-
-  // socket.on('disconnect', function () {
-  //   console.log('user disconnected');
-  // });
 })

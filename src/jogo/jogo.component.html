@@ -1,16 +1,19 @@
-<div id="pagina" [style.background]="(timeJogando == 0) ? 'rgb(144 111 111)' : '#7077a5'">
-    <label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label> <br>
-    <label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label>
+<div id="pagina" [style.background]="(jogo.timeJogando == 0) ? 'rgb(144 111 111)' : '#7077a5'">
+    <!-- <label>Meu time : {{ ['VERMELHO', 'AZUL', 'ACABOU'][time] }}</label> <br>
+    <label>Time atual : {{ ['VERMELHO', 'AZUL', 'ACABOU'][timeJogando] }}</label> -->
+
+    <label class="indicadorTime" style="left: 20px;">{{8 - contaPalavras(0)}}</label>
+    <label class="indicadorTime" style="right: 20px;">{{8 - contaPalavras(1)}}</label>
     
     <div id="containerPalavras">
         <div id="palavras">
-            <div *ngFor="let palavra of jogo?.palavras" [ngClass]="['palavra', palavra.tipo.toString(),(tipoJogador == 'ESPIAO' && listaPalavrasSelecionadas.includes(palavra.texto)) ? 'revelada' : '']" (click)="selecionaPalavra(palavra)">
+            <div *ngFor="let palavra of jogo?.palavras" [ngClass]="['palavra', palavra.tipo.toString(),(listaPalavrasSelecionadas.includes(palavra.texto)) ? 'revelada' : '']" (click)="selecionaPalavra(palavra)">
                 {{palavra.texto.toUpperCase()}}
             </div>
         </div>
     </div>
     
-    <div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == timeJogando">
+    <div *ngIf="tipoJogador == 'ESPIAO' && !jaEnviou && time == jogo.timeJogando">
         <p align="center">
             <input id="entradaPalavra" type="text" [(ngModel)]="inputPalavra">
             <select [(ngModel)]="numeroPalavras" id="numeroPalavras">
@@ -23,7 +26,7 @@
             <input type="button" value="Enviar" (click)="enviaPalavra()">
         </p>
     </div>
-    <p align="center"><input *ngIf="tipoJogador == 'OPERADOR' && timeJogando == time && jaEnviou" type="button" value="Encerrar Turno" (click)="encerraTurno()"></p>
+    <p align="center"><input *ngIf="tipoJogador == 'OPERADOR' && jogo.timeJogando == time && jaEnviou" type="button" value="Encerrar Turno" (click)="encerraTurno()"></p>
     
     <textarea id="historico" readonly [(ngModel)]="historico"></textarea>
 </div>
